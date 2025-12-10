@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 1. THE NEW USER MODEL
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique // No two users can have the same email
+  password     String        // We will store the HASHED password here
+  name         String?
+  transactions Transaction[] // This is a "Virtual List" for Prisma to use
+}
+
+// 2. THE UPDATED TRANSACTION MODEL
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  name        String
+  amount      Float
+  category    String
+  description String?
+  date        DateTime @default(now())
+  
+  // THE LINK (Foreign Key)
+  userId      Int      // "This transaction belongs to User #5"
+  user        User     @relation(fields: [userId], references: [id])
+}
