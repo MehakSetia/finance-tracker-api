@@ -4,10 +4,10 @@ info:
   description: A secure, multi-tenant API for tracking expenses and income.
   version: 1.0.0
 servers:
-  - url: http://localhost:3000
-    description: Local Server
   - url: https://finance-tracker-api-ug26.onrender.com
     description: Production Server (Render)
+  - url: http://localhost:3000
+    description: Local Server
 
 components:
   securitySchemes:
