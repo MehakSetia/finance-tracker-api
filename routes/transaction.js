@@ -92,7 +92,7 @@ router.delete('/:id',authenticationToken,async (req,res)=>{
             id:parseInt(id)
         }
     });
-    res.status(204);
+    res.sendStatus(204);
      }
      catch(error){
         res.status(500).json({error:"Failed to delete transaction"});
