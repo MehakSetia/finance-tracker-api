@@ -1,0 +1,108 @@
+openapi: 3.0.0
+info:
+  title: Personal Finance Tracker API
+  description: A secure, multi-tenant API for tracking expenses and income.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local Server
+  - url: https://finance-tracker-api-ug26.onrender.com
+    description: Production Server (Render)
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      security: [] # Public route
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                name:
+                  type: string
+      responses:
+        201:
+          description: User created successfully
+
+  /auth/login:
+    post:
+      summary: Login and get a Token
+      security: [] # Public route
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Login successful (Returns Token)
+
+  /transaction:
+    get:
+      summary: Get all my transactions
+      responses:
+        200:
+          description: A list of transactions
+    post:
+      summary: Add a new transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                amount:
+                  type: number
+                category:
+                  type: string
+                description:
+                  type: string
+      responses:
+        201:
+          description: Created successfully
+
+  /transaction/{id}:
+    delete:
+      summary: Delete a transaction
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Deleted successfully
+
+  /transaction/summary:
+    get:
+      summary: Get total expenses
+      responses:
+        200:
+          description: Returns the sum of all transaction amounts
