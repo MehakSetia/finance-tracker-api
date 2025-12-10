@@ -7,6 +7,9 @@ const authRoutes = require('./routes/users');
 
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.send("Welcome to the Finance Tracker API! 🚀");
+});
 app.use('/auth',authRoutes);
 app.use('/transaction',transRoutes);
 
