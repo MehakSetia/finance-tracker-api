@@ -81,25 +81,29 @@ router.put('/:id',authenticationToken,async (req,res)=>{
         const updatedTransaction=await prisma.transaction.update({
             where:{
                 id:parseInt(id),
-                data:{name,amount,category,description}
-            }
+            },
+            data:{name,amount,category,description}
         });
-        res.status(updatedTransaction);
+        res.status(200).json(updatedTransaction);
     }
     catch(error){
         res.status(500).json({error:"Failed to update transaction"});
     }
 });
 
-router.delete('/:id',authenticationToken,async (req,res)=>{
+router.delete('/delete/:id',authenticationToken,async (req,res)=>{
     try{
     const { id }=req.params;
-    await prisma.transaction.delete({
+    const deleted=await prisma.transaction.deleteMany({
         where:{
-            id:parseInt(id)
+            id:parseInt(id),
+            userId:req.user.userId
         }
     });
-    res.sendStatus(204);
+    if(deleted.count===0){
+        return res.status(403).json("You are not allowed");
+    }
+    res.status(200).json("Deleted Transaction");
      }
      catch(error){
         res.status(500).json({error:"Failed to delete transaction"});
