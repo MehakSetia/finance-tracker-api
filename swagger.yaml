@@ -101,7 +101,7 @@ paths:
         201:
           description: Created successfully
 
-  /transaction/delete/{id}:
+  /transaction/{id}:
     delete:
       tags:
         - Transactions
