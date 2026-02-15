@@ -7,7 +7,7 @@ const authenticationToken= (req,res,next)=>{
 
     if(!token){
         console.log("⚠️ No token found in header");
-        res.status(401).json({error:"Access denied"});
+        return res.status(401).json({error:"Access denied"});
     }
     try{
         const decoded=jwt.verify(token,"SUPER_SECRET_KEY");

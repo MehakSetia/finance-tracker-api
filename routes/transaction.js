@@ -13,8 +13,9 @@ router.get('/summary',authenticationToken,async (req,res)=>{
                 amount:true
             }
         });
+        const totalAmount=result._sum ?? 0;
         console.log("Result from DB: ",result);
-        res.json(result._sum);
+        res.json({amount:totalAmount});
     }
     catch(error){
         res.status(500).json({error:"Failed to generate summary"});
@@ -67,11 +68,12 @@ router.post('/',authenticationToken,async (req,res)=>{
     }
 });
 
+
 router.put('/:id',authenticationToken,async (req,res)=>{
     try{
         const { id }=req.params;
         const { name,amount,category,description}=req.body;
-        const updatedTransaction=await prisma.transaction.findUnique({
+        const updatedTransaction=await prisma.transaction.update({
             where:{
                 id:parseInt(id),
                 data:{name,amount,category,description}
