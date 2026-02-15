@@ -22,8 +22,10 @@ security:
 paths:
   /auth/register:
     post:
+      tags:
+        - Authentication
       summary: Register a new user
-      security: [] # Public route
+      security: [] 
       requestBody:
         required: true
         content:
@@ -43,8 +45,10 @@ paths:
 
   /auth/login:
     post:
+      tags:
+        - Authentication
       summary: Login and get a Token
-      security: [] # Public route
+      security: [] 
       requestBody:
         required: true
         content:
@@ -62,11 +66,21 @@ paths:
 
   /transaction:
     get:
+      tags:
+        - Transactions
       summary: Get all my transactions
+      parameters:
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Filter transactions by category (e.g., Food, Salary)
       responses:
         200:
           description: A list of transactions
     post:
+      tags:
+        - Transactions
       summary: Add a new transaction
       requestBody:
         required: true
@@ -89,6 +103,8 @@ paths:
 
   /transaction/{id}:
     delete:
+      tags:
+        - Transactions
       summary: Delete a transaction
       parameters:
         - in: path
@@ -102,6 +118,8 @@ paths:
 
   /transaction/summary:
     get:
+      tags:
+        - Transactions
       summary: Get total expenses
       responses:
         200:
