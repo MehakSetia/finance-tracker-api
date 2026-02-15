@@ -24,8 +24,12 @@ router.get('/summary',authenticationToken,async (req,res)=>{
 
 router.get('/',authenticationToken,async (req,res)=>{
     try{
+        const {category}=req.query;
         const allTrans=await prisma.transaction.findMany({
-            where:{userId:req.user.userId}
+            where:{
+                userId:req.user.userId,
+                ...(category && {category})
+            }
         });
         res.json(allTrans);
     }
@@ -37,9 +41,10 @@ router.get('/',authenticationToken,async (req,res)=>{
 router.get('/:id',authenticationToken,async (req,res)=>{
     try{
         const { id }=req.params;
-        const trans=await prisma.transaction.findUnique({
+        const trans=await prisma.transaction.findFirst({
             where:{
-                id:parseInt(id)
+                id:parseInt(id),
+                userId:req.user.userId
             }
         });
         if(trans){
