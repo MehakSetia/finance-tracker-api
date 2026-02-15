@@ -91,7 +91,7 @@ router.put('/:id',authenticationToken,async (req,res)=>{
     }
 });
 
-router.delete('/delete/:id',authenticationToken,async (req,res)=>{
+router.delete('/:id',authenticationToken,async (req,res)=>{
     try{
     const { id }=req.params;
     const deleted=await prisma.transaction.deleteMany({
