@@ -7,7 +7,7 @@ A production-ready, secure RESTful API for tracking personal finances, built wit
 
 📖 Overview
 
-This project is a robust backend system designed to handle multi-user financial data securely. It goes beyond basic CRUD operations by implementing Role-Based Access Control, 
+This project is a robust backend system designed to handle multi-user financial data securely. It goes beyond basic CRUD operations by implementing Ownership-Based Access Control, 
 Data Encryption, and Database Relations.
 
 Unlike simple tutorial projects, this API enforces strict data isolation—users can only access and manipulate their own transaction data, ensuring privacy in a multi-tenant 
