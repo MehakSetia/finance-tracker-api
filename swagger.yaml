@@ -1,87 +1,211 @@
 openapi: 3.0.0
 info:
   title: Personal Finance Tracker API
-  description: A secure, multi-tenant API for tracking expenses and income.
-  version: 1.0.0
+  description: A secure, role-based API for tracking personal income and expenses with dashboard analytics.
+  version: 2.0.0
 servers:
   - url: https://finance-tracker-api-ug26.onrender.com
     description: Production Server (Render)
   - url: http://localhost:3000
     description: Local Server
-
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
 security:
   - bearerAuth: []
-
 paths:
   /auth/register:
     post:
       tags:
         - Authentication
       summary: Register a new user
-      security: [] 
+      security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - name
+                - email
+                - password
               properties:
-                email:
-                  type: string
-                password:
-                  type: string
                 name:
                   type: string
+                  example: Mahak Setia
+                email:
+                  type: string
+                  example: mahak@example.com
+                password:
+                  type: string
+                  example: password123
       responses:
         201:
           description: User created successfully
+        400:
+          description: Validation error or email already exists
 
   /auth/login:
     post:
       tags:
         - Authentication
-      summary: Login and get a Token
-      security: [] 
+      summary: Login and get a JWT token
+      security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - email
+                - password
               properties:
                 email:
                   type: string
+                  example: mehak@example.com
                 password:
                   type: string
+                  example: password123
       responses:
         200:
-          description: Login successful (Returns Token)
+          description: Login successful, returns JWT token
+        401:
+          description: Invalid credentials
+
+  /transaction/add:
+    post:
+      tags:
+        - Transactions
+      summary: Add a new transaction (User and Admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - amount
+                - category
+                - type
+              properties:
+                name:
+                  type: string
+                  example: Salary
+                amount:
+                  type: number
+                  example: 50000
+                category:
+                  type: string
+                  example: Income
+                type:
+                  type: string
+                  enum: [income, expense]
+                  example: income
+                description:
+                  type: string
+                  example: Monthly salary
+                date:
+                  type: string
+                  format: date-time
+                  example: 2026-04-01T00:00:00.000Z
+      responses:
+        201:
+          description: Transaction created successfully
+        400:
+          description: Validation error
+        403:
+          description: Access denied
 
   /transaction:
     get:
       tags:
         - Transactions
-      summary: Get all my transactions
+      summary: Get all transactions with optional filters and pagination
       parameters:
         - in: query
           name: category
           schema:
             type: string
-          description: Filter transactions by category (e.g., Food, Salary)
+          description: Filter by category
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of records per page
       responses:
         200:
-          description: A list of transactions
-    post:
+          description: Returns paginated list of transactions with total count
+
+  /transaction/dashboard:
+    get:
       tags:
         - Transactions
-      summary: Add a new transaction
+      summary: Get dashboard summary analytics
+      responses:
+        200:
+          description: Returns totalIncome, totalExpenses, netBalance, categoryWiseTotals, recentTransactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalIncome:
+                    type: number
+                    example: 50000
+                  totalExpenses:
+                    type: number
+                    example: 20000
+                  netBalance:
+                    type: number
+                    example: 30000
+                  categoryWiseTotals:
+                    type: object
+                    example: { "Food": 5000, "Rent": 15000 }
+                  recentTransactions:
+                    type: array
+                    items:
+                      type: object
+
+  /transaction/{id}:
+    get:
+      tags:
+        - Transactions
+      summary: Get a single transaction by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Returns the transaction
+        404:
+          description: Transaction not found
+
+    put:
+      tags:
+        - Transactions
+      summary: Update a transaction (User and Admin only)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -95,17 +219,23 @@ paths:
                   type: number
                 category:
                   type: string
+                type:
+                  type: string
+                  enum: [income, expense]
                 description:
                   type: string
       responses:
-        201:
-          description: Created successfully
+        200:
+          description: Transaction updated successfully
+        403:
+          description: Not authorized
+        404:
+          description: Transaction not found
 
-  /transaction/{id}:
     delete:
       tags:
         - Transactions
-      summary: Delete a transaction
+      summary: Delete a transaction (User and Admin only)
       parameters:
         - in: path
           name: id
@@ -113,14 +243,43 @@ paths:
           schema:
             type: integer
       responses:
-        204:
-          description: Deleted successfully
+        200:
+          description: Transaction deleted successfully
+        403:
+          description: Not authorized
+        404:
+          description: Transaction not found
 
-  /transaction/summary:
+  /goals/add:
+    post:
+      tags:
+        - Goals
+      summary: Add a financial goal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - amount
+              properties:
+                name:
+                  type: string
+                  example: Emergency Fund
+                amount:
+                  type: number
+                  example: 100000
+      responses:
+        201:
+          description: Goal created successfully
+
+  /goals:
     get:
       tags:
-        - Transactions
-      summary: Get total expenses
+        - Goals
+      summary: Get all goals for the logged in user
       responses:
         200:
-          description: Returns the sum of all transaction amounts
+          description: Returns list of goals

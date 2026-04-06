@@ -1,19 +1,21 @@
 const jwt=require('jsonwebtoken');
-const express=require('express');
-const router=express.Router();
 const { PrismaClient }=require('@prisma/client');
 const bcrypt=require('bcryptjs');
 const prisma=new PrismaClient();
+const {registerSchema,loginSchema}=require('../validators/authSchema');
 
-router.post('/register',async (req,res)=>{
+
+const register=async (req,res,next)=>{
     try{
         const{ name,email,password }=req.body;
-
+        registerSchema.parse(req.body);
         const existingUser=await prisma.user.findUnique({
             where:{ email }
         });
         if(existingUser){
-            return res.status(400).json({error:"User already exists"});
+            const error=new Error("Email already exists");
+            error.statusCode=400;
+            return next(error);
         }
         const hashedPass=await bcrypt.hash(password,10);
 
@@ -26,37 +28,41 @@ router.post('/register',async (req,res)=>{
         });
         return res.status(201).json({message:"User created",user:newUser});
     }
-    catch(error){
-        res.status(500).json({error:"Registration failed"});
+    catch(err){
+        return next(err);
     }
-});
+};
 
-router.post('/login',async (req,res)=>{
+const login=async (req,res,next)=>{
    try{
     const{ email,password }=req.body;
+    loginSchema.parse(req.body);
     const user=await prisma.user.findUnique({
         where:{ email }
     });
     if(!user){
-        return res.status(400).json({error:"Invalid email or password"});
+        const error=new Error("Invalid email or password");
+        error.statusCode=400;
+        return next(error);
     }
     const isPassValid=await bcrypt.compare(password,user.password);
 
     if(!isPassValid){
-        return res.status(400).json({error:"Invalid email or password"});
+        const error=new Error("Invalid email or password");
+        error.statusCode=400;
+        return next(error);
     }
 
     const token=jwt.sign(
-        {userId:user.id},
+        {userId:user.id,role:user.role},
         process.env.JWT_SECRET,
         {expiresIn:"1h"}
     );
     res.json({message:"Login successful",token});
    }
-   catch(error){
-    console.error(error);
-    res.status(500).json({error:"Login Failed"});
+   catch(err){
+    return nexr(err);
    }
-})
+};
 
-module.exports=router;
+module.exports={register,login};

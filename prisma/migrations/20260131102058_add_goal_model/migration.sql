@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Goal" ADD COLUMN     "currSaved" DOUBLE PRECISION NOT NULL DEFAULT 0,
+ADD COLUMN     "monthlyTarget" DOUBLE PRECISION;

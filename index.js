@@ -8,9 +8,9 @@ const app=express();
 const port=3000;
 
 
-const transRoutes = require('./routes/transaction');
-const authRoutes = require('./routes/users');
-// const goalRoutes=require('./routes/goals');
+const transRoutes = require('./routes/transactionRoutes');
+const authRoutes = require('./routes/authRoutes');
+const goalRoutes=require('./routes/goalRoutes');
 
 app.use(express.json());
 
@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/auth',authRoutes);
 app.use('/transaction',transRoutes);
-// app.use('/goals',goalRoutes);
+app.use('/goals',goalRoutes);
 
 app.listen(port,()=>{
     console.log(`Finance tracker running at api http://localhost:${port}`);

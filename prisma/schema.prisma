@@ -7,27 +7,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 1. THE NEW USER MODEL
+enum Role{
+  User
+  Analyst
+  Admin
+}
+
+enum TransactionType{
+  income
+  expense
+}
+
 model User {
   id           Int           @id @default(autoincrement())
-  email        String        @unique // No two users can have the same email
-  password     String        // We will store the HASHED password here
+  email        String        @unique
+  password     String 
+  role         Role          @default(User)
   name         String?
-  transactions Transaction[] // This is a "Virtual List" for Prisma to use
+  transactions Transaction[]
   goals        Goal[]
 }
 
-// 2. THE UPDATED TRANSACTION MODEL
+
 model Transaction {
-  id          Int      @id @default(autoincrement())
+  id          Int               @id @default(autoincrement())
+  type        TransactionType   @default(expense)
   name        String
   amount      Float
   category    String
   description String?
-  date        DateTime @default(now())
+  date        DateTime          @default(now())
   
-  // THE LINK (Foreign Key)
-  userId      Int      // "This transaction belongs to User #5"
+ 
+  userId      Int     
   user        User     @relation(fields: [userId], references: [id])
 }
 
