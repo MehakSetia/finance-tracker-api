@@ -36,10 +36,10 @@ paths:
               properties:
                 name:
                   type: string
-                  example: Mahak Setia
+                  example: Mehak Setia
                 email:
                   type: string
-                  example: mahak@example.com
+                  example: mehak@example.com
                 password:
                   type: string
                   example: password123
