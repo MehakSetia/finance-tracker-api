@@ -1,115 +1,128 @@
-💰 Personal Finance Tracker API
+# 💰 Personal Finance Tracker API
 
-A production-ready, secure RESTful API for tracking personal finances, built with modern backend technologies.
+A production-ready, secure RESTful API for tracking personal finances with role-based access control and dashboard analytics, built with modern backend technologies.
 
-🚀 Live API: https://finance-tracker-api-ug26.onrender.com
-📄 API Documentation (Swagger): https://finance-tracker-api-ug26.onrender.com/api-docs
+🚀 **Live API:** https://finance-tracker-api-ug26.onrender.com  
+📄 **API Documentation (Swagger):** https://finance-tracker-api-ug26.onrender.com/api-docs
 
-📖 Overview
+---
 
-This project is a robust backend system designed to handle multi-user financial data securely. It goes beyond basic CRUD operations by implementing Ownership-Based Access Control, 
-Data Encryption, and Database Relations.
+## 🔐 Role Model
 
-Unlike simple tutorial projects, this API enforces strict data isolation—users can only access and manipulate their own transaction data, ensuring privacy in a multi-tenant 
-environment.
+| Role | Permissions |
+|---|---|
+| **User** | Create, view, update, delete their own transactions. View their own dashboard and goals. |
+| **Analyst** | View all users' transactions (with optional userId filter). View aggregated dashboard across all users. Read-only. |
+| **Admin** | Full access — all User permissions plus ability to update and delete any transaction. |
 
-✨ Key Features
+**Note:** Roles are assigned manually in the database. Registration defaults all users to `User` role. Analyst and Admin roles are elevated manually — preventing self-assignment of privileged roles.
 
-🔐 Security First
+---
 
-JWT Authentication: Stateless, secure authentication using JSON Web Tokens.
+## ✨ Key Features
 
-Password Hashing: All passwords are encrypted using bcrypt before storage.
+### 🔐 Security
+- JWT Authentication — stateless, secure token-based auth
+- Password hashing with bcrypt
+- Role-based access control middleware
+- Ownership-based data isolation — users can only access their own data
 
-Protected Routes: Middleware middleware ensures only authenticated requests reach sensitive endpoints.
+### 📊 Dashboard Analytics
+- Total income and total expenses
+- Net balance calculation
+- Category-wise spending totals
+- 5 most recent transactions
+- Analyst and Admin see aggregated data across all users
 
-🏗 Architecture
+### ⚡ Core Functionality
+- User registration and login with JWT
+- Transaction CRUD with type (income/expense), category, date, description
+- Category filtering with pagination
+- Financial goals management
+- Global error handler — no raw server crashes
 
-Relational Database: Utilizes PostgreSQL for structured, reliable data storage.
-
-ORM Integration: Uses Prisma for type-safe database queries and automated migrations.
-
-Multi-Tenancy: Transactions are relationally linked to specific Users, preventing data leaks.
-
-⚡️ Core Functionality
-
-User Management: Secure Registration and Login endpoints.
-
-Transaction CRUD: Create, Read, Update, and Delete financial records.
-
-Data Aggregation: Server-side calculation of total expenses/income per user.
-
-Filtering: Query parameter support for filtering transactions by category.
+---
 
 ## 🛠 Tech Stack
 
-| Component | Technology | Description |
-| :--- | :--- | :--- |
-| **Runtime** | Node.js | Asynchronous, event-driven JavaScript runtime. |
-| **Framework** | Express.js | Fast, unopinionated web framework for Node.js. |
-| **Database** | PostgreSQL | Advanced open-source relational database. |
-| **ORM** | Prisma | Next-generation Node.js and TypeScript ORM. |
-| **Auth** | JWT & bcrypt | Industry standards for stateless auth and encryption. |
-| **Docs** | Swagger UI | Interactive API documentation. |
-| **Deployment** | Render & Neon | Cloud hosting for Server and Database. |
+| Component | Technology |
+|---|---|
+| Runtime | Node.js |
+| Framework | Express.js |
+| Database | PostgreSQL |
+| ORM | Prisma |
+| Auth | JWT + bcryptjs |
+| Validation | Zod |
+| Docs | Swagger UI |
+| Deployment | Render + Neon DB |
 
-🔌 API Endpoints
+---
 
-Full documentation is available at /api-docs.
+## 🔌 API Endpoints
 
-Authentication
+Full interactive documentation at `/api-docs`.
 
-POST /auth/register - Register a new user.
+### Authentication (Public)
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/auth/register` | Register — defaults to User role |
+| POST | `/auth/login` | Login — returns JWT token |
 
-POST /auth/login - Login and receive a Bearer Token.
+### Transactions (Requires Token)
+| Method | Endpoint | Role | Description |
+|---|---|---|---|
+| POST | `/transaction/add` | User, Admin | Add a new transaction |
+| GET | `/transaction` | All | Get own transactions (category filter + pagination) |
+| GET | `/transaction/dashboard` | All | Dashboard summary (Analyst/Admin see all users) |
+| GET | `/transaction/all` | Analyst, Admin | All users' transactions (optional ?id=userId filter) |
+| GET | `/transaction/:id` | All | Get single transaction by ID |
+| PUT | `/transaction/:id` | User, Admin | Update a transaction |
+| DELETE | `/transaction/:id` | User, Admin | Delete a transaction |
 
-Transactions (Requires Token)
+### Goals (Requires Token)
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/goals/add` | Add a financial goal |
+| GET | `/goals` | Get all goals for logged in user |
 
-GET /transaction - Retrieve all user transactions.
+---
 
-POST /transaction - Create a new transaction.
+## 🚀 Local Installation
 
-GET /transaction/:id - Retrieve a specific transaction.
-
-PUT /transaction/:id - Update a transaction.
-
-DELETE /transaction/:id - Remove a transaction.
-
-GET /transaction/summary - Get total expense summary.
-
-
-
-🚀 Local Installation
-
-Clone the repository:
-
-git clone [https://github.com/MehakSetia/finance-tracker-api.git](https://github.com/MehakSetia/finance-tracker-api.git)
+```bash
+# Clone the repository
+git clone https://github.com/MehakSetia/finance-tracker-api.git
 cd finance-tracker-api
 
-
-Install dependencies:
-
+# Install dependencies
 npm install
 
-
-Configure Environment:
-Create a .env file in the root directory:
-
+# Configure environment
+# Create .env file with:
 DATABASE_URL="postgresql://user:password@localhost:5432/finance_tracker"
 JWT_SECRET="your_secret_key"
 
-
-Run Database Migrations:
-
+# Run migrations
 npx prisma migrate dev
 
-
-Start the Server:
-
+# Start server
 npm start
+```
 
+---
 
-👨‍💻 Author
+## 📝 Assumptions Made
 
-Built by Mehak Setia
-Passionate about scalable backend systems and cloud architecture.
+- Users self-register as `User` role. Analyst and Admin roles are assigned manually by a database administrator — this prevents privilege escalation through the API.
+- Analyst role is read-only across all users' data, designed for reporting and analytics use cases.
+- Dashboard endpoint behaviour changes based on role — User sees their own data, Analyst and Admin see aggregated data across all users.
+- Financial goals are personal to each user and not role-restricted beyond authentication.
+- Transactions require explicit `type` field (income or expense) — no default assumed.
+
+---
+
+## 👩‍💻 Author
+
+Built by **Mehak Setia**  
+Passionate about scalable backend systems and financial technology.  
+GitHub: https://github.com/MehakSetia
