@@ -33,7 +33,7 @@ model Transaction {
   id          Int               @id @default(autoincrement())
   type        TransactionType   @default(expense)
   name        String
-  amount      Float
+  amount      Decimal
   category    String
   description String?
   date        DateTime          @default(now())
@@ -48,7 +48,7 @@ model Transaction {
 model Goal {
   id              Int       @id @default(autoincrement())
   name            String
-  amount          Float
+  amount          Decimal
   createdAt       DateTime  @default(now())
   monthlyTarget   Float?
   currSaved       Float     @default(0)
