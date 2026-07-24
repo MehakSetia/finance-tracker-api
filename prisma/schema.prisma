@@ -41,6 +41,7 @@ model Transaction {
  
   userId      Int     
   user        User     @relation(fields: [userId], references: [id])
+  @@index([userId])
 }
 
 
@@ -54,4 +55,5 @@ model Goal {
 
   userId      Int
   user        User       @relation(fields: [userId],references: [id])
+  @@index([userId])
 }
